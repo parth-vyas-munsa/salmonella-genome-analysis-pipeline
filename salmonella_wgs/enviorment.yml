@@ -1,0 +1,19 @@
+
+name: salmonella-wgs
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - fastqc
+  - fastp
+  - multiqc
+  - sra-tools
+  - spades
+  - bwa
+  - samtools
+  - bcftools
+  - seqkit
+  - snpeff
+  - quast
+  - pip

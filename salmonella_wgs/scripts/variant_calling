@@ -1,0 +1,107 @@
+conda deactivate
+
+CONDA_NO_PLUGINS=true conda create --solver classic \
+  -n variant_env -c conda-forge -c bioconda \
+   bwa samtools bcftools
+
+conda activate variant_env
+
+
+project="/home/bioinformatics/bacterial_wgs"
+
+mkdir -p "$project/alignment" "$project/reference"
+
+wget -P "$project/reference" \
+https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/945/GCF_000006945.2_ASM694v2/GCF_000006945.2_ASM694v2_genomic.fna.gz
+
+gunzip -k "$project/reference/GCF_000006945.2_ASM694v2_genomic.fna.gz"
+
+ref="$project/reference/GCF_000006945.2_ASM694v2_genomic.fna"
+
+bwa index "$ref"
+samtools faidx "$ref"
+
+bwa mem -t 2 "$ref" \
+"$project/trimmed/SRR41022238_1.trimmed.fastq.gz" \
+"$project/trimmed/SRR41022238_2.trimmed.fastq.gz" \
+> "$project/alignment/aligned.sam"
+
+
+####################3333bam
+samtools view -@ 2 -b \
+"$project/alignment/aligned.sam" \
+-o "$project/alignment/aligned.bam"
+
+
+#####################################
+samtools sort -@ 2 \
+"$project/alignment/aligned.bam" \
+-o "$project/alignment/aligned.sorted.bam"
+
+
+#######################################
+
+samtools index "$project/alignment/aligned.sorted.bam"
+
+#################################3
+samtools flagstat "$project/alignment/aligned.sorted.bam"
+
+
+
+##########################var calling
+mkdir -p "$project/variants"
+
+bcftools mpileup \
+  -f "$ref" \
+  -q 20 -Q 20 \
+  -Ou "$project/alignment/aligned.sorted.bam" |
+bcftools call \
+  --ploidy 1 \
+  -mv \
+  -Ov \
+  -o "$project/variants/variants.raw.vcf"
+
+bcftools view -H "$project/variants/variants.raw.vcf" | wc -l
+
+
+##########################filter
+
+
+bcftools filter \
+  -i 'QUAL>=30' \
+  "$project/variants/variants.raw.vcf" \
+  -Ov \
+  -o "$project/variants/variants.filtered.vcf"
+
+
+############################################
+
+
+##################snp and indels########################
+
+vcf="$project/variants/variants.filtered.vcf"
+
+bcftools view \
+  -v snps \
+  "$vcf" \
+  -Ov \
+  -o "$project/variants/snps.vcf"
+
+
+bcftools view \
+  -v indels \
+  "$vcf" \
+  -Ov \
+  -o "$project/variants/indels.vcf"
+
+########################################################3
+
+
+echo "SNP count:"
+bcftools view -H "$project/variants/snps.vcf" | wc -l
+
+echo "Indel count:"
+bcftools view -H "$project/variants/indels.vcf" | wc -l
+
+
+

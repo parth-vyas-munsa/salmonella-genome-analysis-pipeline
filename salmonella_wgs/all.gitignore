@@ -1,0 +1,30 @@
+cd /home/bioinformatics/bacterial_wgs
+
+cat > .gitignore <<'EOF'
+# Sequencing reads
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+
+# Alignment files
+*.sam
+*.bam
+*.bai
+*.cram
+*.crai
+
+# Reference genome indexes
+*.fai
+*.amb
+*.ann
+*.bwt
+*.pac
+*.sa
+
+# Temporary files and logs
+*.log
+*.tmp
+__pycache__/
+.env
+EOF
