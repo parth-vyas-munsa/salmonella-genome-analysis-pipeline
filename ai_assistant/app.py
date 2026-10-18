@@ -9,7 +9,7 @@ from google import genai
 # --------------------------------------------------
 
 st.set_page_config(
-    page_title="Salmonella WGS AI Assistant",
+    page_title="Salmonella WGS AI Assistant By Parth Vyas",
     page_icon="🧬",
     layout="wide"
 )
