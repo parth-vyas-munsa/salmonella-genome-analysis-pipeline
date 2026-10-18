@@ -18,7 +18,7 @@ MAX_FILE_MB = 5
 MAX_ROWS_FOR_AI = 100
 MAX_REQUESTS_PER_SESSION = 10
 
-st.title("🧬 Salmonella WGS AI Assistant")
+st.title("🧬 Salmonella WGS AI Assistant By Parth Vyas")
 st.caption(
     "AI-assisted interpretation of AMR, genome annotation, "
     "and other bioinformatics results."
