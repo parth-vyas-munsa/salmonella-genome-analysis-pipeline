@@ -14,6 +14,10 @@ st.set_page_config(
     layout="wide"
 )
 
+MAX_FILE_MB = 5
+MAX_ROWS_FOR_AI = 100
+MAX_REQUESTS_PER_SESSION = 10
+
 st.title("🧬 Salmonella WGS AI Assistant")
 st.caption(
     "AI-assisted interpretation of AMR, genome annotation, "
@@ -48,8 +52,14 @@ st.subheader("Upload your bioinformatics results")
 uploaded_file = st.file_uploader(
     "Upload an AMR, Bakta, QC, or annotation results file",
     type=["csv", "tsv"],
-    help="Supported formats: comma-separated CSV and tab-separated TSV."
+    help="Supported formats: comma-separated CSV and tab-separated TSV.",
+    max_upload_size=MAX_FILE_MB
+    
 )
+if uploaded_file is not None:
+    if uploaded_file.size > MAX_FILE_MB * 1024 * 1024:
+        st.error("File too large. Maximum size is 5 MB.")
+        st.stop()
 
 # --------------------------------------------------
 # 4. Read and validate the file
@@ -95,6 +105,17 @@ if uploaded_file is not None:
     except Exception as e:
         st.error(f"Could not read the file: {e}")
         st.stop()
+
+if "ai_requests" not in st.session_state:
+    st.session_state.ai_requests = 0
+
+if st.session_state.ai_requests >= MAX_REQUESTS_PER_SESSION:
+    st.error("Session limit reached. Please try again later.")
+    st.stop()
+
+st.session_state.ai_requests += 1
+
+# Keep your existing Gemini API call here.
 
 # --------------------------------------------------
 # 5. Ask a question
@@ -220,3 +241,4 @@ st.caption(
     "must be verified against the original results and relevant "
     "bioinformatics databases."
 )
+
