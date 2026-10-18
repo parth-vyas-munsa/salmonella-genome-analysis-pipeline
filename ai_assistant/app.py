@@ -24,7 +24,7 @@ st.caption(
 # 2. Gemini API configuration
 # --------------------------------------------------
 
-api_key = os.getenv("GEMINI_API_KEY")
+api_key = st.secrets.get("GEMINI_API_KEY", "")
 
 if not api_key:
     st.error(
